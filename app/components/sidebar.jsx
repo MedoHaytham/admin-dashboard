@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { House, DollarSign , Settings, ShoppingBag, ShoppingCart , Mail, Users, Bell, Info, Menu } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
-const sidebatItems = [
+const sidebarItems  = [
   {
     id: 1,
     icon: <House size={20} className='min-w-5'/>,
@@ -64,7 +64,7 @@ const sidebatItems = [
 
 function Sidebar() {
   const pathname  = usePathname();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -77,13 +77,15 @@ function Sidebar() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  if (isSidebarOpen === null) return null;
+
   return (
     <div className={`${isSidebarOpen ? 'w-64' : 'w-21'} transition-all duration-300 ease-in-out shrink-0 relative z-10 `}>
       <div className='h-full bg-primary backdrop-blur-md p-4 flex flex-col border-r border-secondary'>
         <button  onClick={() => setIsSidebarOpen((prev) => !prev)} className={`hidden md:block rounded-full p-2 hover:bg-secondary transition-colors max-w-fit cursor-pointer ${isSidebarOpen ? '' : 'ml-1.5'}`}><Menu size={24}/></button>
         <nav className='mt-8 grow'>
           {
-            sidebatItems.map((item) => (
+            sidebarItems.map((item) => (
               <Link key={item.id} href={item.path}>
                 <div className={`flex items-center p-4 text-sm font-medium rounded-lg hover:bg-secondary transition-colors mb-2 ${pathname === item.path ? 'bg-secondary' : ''}`}>
                   {item.icon}

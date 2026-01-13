@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import SalesOverview from '../components/SalesOverview';
 import SalesByCategory from '../components/SalesByCatecogry';
 import OrderStatus from './../components/OrderStatus';
+import ProductsPerformance from '../components/ProductsPerformance';
 
 function Overview() {
   return (
@@ -22,10 +23,11 @@ function Overview() {
           <StatCard name='Stock' icon={SquareActivity} value='12,845'/>
         </motion.div>
 
-        <div className='grid grid-cols-1 lg:grid-cols-2 gap-8'>
+        <div className='grid grid-cols-1 lg:grid-cols-2 gap-8 mb-5'>
           <SalesOverview />
           <SalesByCategory />
           <OrderStatus />
+          <ProductsPerformance />
         </div>
       </main>
     </div>

@@ -44,7 +44,7 @@ function OrderStatus() {
               dataKey="value"
               cx="50%"
               cy="50%"
-              outerRadius={isMobile ? 100 : 80}
+              outerRadius={isMobile ? 88 : 80}
               label={
                 isMobile? 
                 ({ cx, cy, midAngle, innerRadius, outerRadius, percent, name }) => {
@@ -52,7 +52,7 @@ function OrderStatus() {
                   const x = cx + radius * Math.cos(-midAngle * (Math.PI / 180) - 0.18);
                   const y = cy + radius * Math.sin(-midAngle * (Math.PI / 180));
                   return (
-                    <text x={x} y={y} fill="#000" textAnchor="middle" dominantBaseline="central" fontSize={9}>
+                    <text x={x} y={y} fill="#000" textAnchor="middle" dominantBaseline="central" fontSize={8}>
                       {`${name} ${(percent * 100).toFixed(0)}%`}
                     </text>
                   );
