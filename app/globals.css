@@ -3,6 +3,12 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  --primary: #1e1e1e;
+  --secondary: #2f2f2f;
+  --border-primary: #1f1f1f;
+  --text-primary: #d1d5db;
+  --text-secondary: #f3f4f6;
 }
 
 @theme inline {
@@ -10,12 +16,20 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-border-primary: var(--border-primary);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+
+
   }
 }
 
@@ -24,3 +38,19 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.hide-scrollbar {
+  -ms-overflow-style: none; 
+  scrollbar-width: none;     
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;            
+}
+
+/* h1 { font-size: 3rem; } /* 48px */
+/* h2 { font-size: 2.25rem; } /* 36px */
+/* h3 { font-size: 1.875rem; }   /* 30px */
+/* h4 { font-size: 1.5rem; }  /* 24px */
+/* h5 { font-size: 1.25rem; }     /* 20px */
+/* h6 { font-size: 1.125rem; } /* 18px */

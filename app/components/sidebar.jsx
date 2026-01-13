@@ -1,6 +1,6 @@
 "use client"
 import Link from 'next/link'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { House, DollarSign , Settings, ShoppingBag, ShoppingCart , Mail, Users, Bell, Info, Menu } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
@@ -63,18 +63,29 @@ const sidebatItems = [
 
 
 function Sidebar() {
-  const pahtname = usePathname();
+  const pathname  = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsSidebarOpen(window.innerWidth >= 768);
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <div className={`${isSidebarOpen ? 'w-64' : 'w-21'} transition-all duration-300 ease-in-out shrink-0 relative z-10 `}>
-      <div className='h-full bg-[#1e1e1e] backdrop-blur-md p-4 flex flex-col border-r border-[#2f2f2f]'>
-        <button onClick={() => setIsSidebarOpen((prev) => !prev)} className='rounded-full p-2 hover:bg-[#2f2f2f] transition-colors max-w-fit cursor-pointer'><Menu size={24}/></button>
+      <div className='h-full bg-primary backdrop-blur-md p-4 flex flex-col border-r border-secondary'>
+        <button  onClick={() => setIsSidebarOpen((prev) => !prev)} className={`hidden md:block rounded-full p-2 hover:bg-secondary transition-colors max-w-fit cursor-pointer ${isSidebarOpen ? '' : 'ml-1.5'}`}><Menu size={24}/></button>
         <nav className='mt-8 grow'>
           {
             sidebatItems.map((item) => (
               <Link key={item.id} href={item.path}>
-                <div className={`flex items-center p-4 text-sm font-medium rounded-lg hover:bg-[#2f2f2f] transition-colors mb-2 ${pahtname === item.path ? 'bg-[#2f2f2f]' : ''}`}>
+                <div className={`flex items-center p-4 text-sm font-medium rounded-lg hover:bg-secondary transition-colors mb-2 ${pathname === item.path ? 'bg-secondary' : ''}`}>
                   {item.icon}
                   {isSidebarOpen && <span className='ml-4 whitespace-nowrap'>{item.name}</span>}
                 </div>

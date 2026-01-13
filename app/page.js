@@ -1,8 +1,8 @@
 import Image from "next/image";
-import OverView from "./overview/page";
+import Overview from "./overview/page";
 
 export default function Home() {
   return (
-    <OverView />
+    <Overview />
   );
 }
