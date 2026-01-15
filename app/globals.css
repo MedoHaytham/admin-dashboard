@@ -7,8 +7,8 @@
   --primary: #1e1e1e;
   --secondary: #2f2f2f;
   --border-primary: #1f1f1f;
-  --text-primary: #d1d5db;
-  --text-secondary: #f3f4f6;
+  --text-primary: #d1d5db;  /* grey-300 */
+  --text-secondary: #f3f4f6; /* grey-100 */
 }
 
 @theme inline {

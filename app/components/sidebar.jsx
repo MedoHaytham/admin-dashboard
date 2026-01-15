@@ -64,7 +64,7 @@ const sidebarItems  = [
 
 function Sidebar() {
   const pathname  = usePathname();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -77,7 +77,7 @@ function Sidebar() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  if (isSidebarOpen === null) return null;
+  // if (isSidebarOpen === null) return null;
 
   return (
     <div className={`${isSidebarOpen ? 'w-64' : 'w-21'} transition-all duration-300 ease-in-out shrink-0 relative z-10 `}>

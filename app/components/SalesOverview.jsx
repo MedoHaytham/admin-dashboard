@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { motion } from 'framer-motion';
 
@@ -28,7 +28,7 @@ function SalesOverview() {
       transition={{delay: 0.2, duration: 0.5}}
     >
       <h2 className='text-base md:text-lg font-medium mb-4 text-text-secondary text-center md:text-left'>Sales Overview</h2>
-      <div className='h-64 md:h-80'>
+      <div className='w-full h-64 md:h-80'>
         <ResponsiveContainer width='100%' height='100%'>
           <LineChart data={salesData}>
             <CartesianGrid strokeDasharray='3 3' stroke='#4b5563'/>
