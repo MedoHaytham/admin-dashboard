@@ -12,8 +12,8 @@ function Header() {
           <Image
             src="https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/svg/1f1ea-1f1ec.svg"
             alt="Egypt Flag"
-            width={23}
-            height={18}
+            width={20}
+            height={20}
             className='shadow-md cursor-pointer'
           />
           <Bell className='w-5 sm:w-6 h-5 sm:h-6 text-text-primary cursor-pointer hover:text-white'/>

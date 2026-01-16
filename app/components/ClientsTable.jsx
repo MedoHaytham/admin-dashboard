@@ -10,7 +10,7 @@ function ClientsTable() {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedTerm, setDebouncedTerm] = useState('');
   const [editingRow, setEditingRow] = useState(null);
-
+  
   useEffect(() => {
     const t = setTimeout(() => setDebouncedTerm(searchTerm.trim()), 300);
     return () => clearTimeout(t);
@@ -21,10 +21,9 @@ function ClientsTable() {
     if (!term) return clintsData;
     return (
       clintsData.filter((client) => {
-        const fullName = `${client.firstName} ${client.lastName}`;
-        const fullNameMatch = fullName?.toLowerCase().includes(term);
+        const nameMatch = client.name?.toLowerCase().includes(term);
         const emailMatch = client.email?.toLowerCase().includes(term);
-        return fullNameMatch || emailMatch
+        return nameMatch || emailMatch
       })
     );
   },[debouncedTerm, clintsData]);
@@ -34,7 +33,15 @@ function ClientsTable() {
       try {
         const response = await fetch('https://dummyjson.com/users?limit=208&sortBy=firstName&order=asc');
         const data = await response.json();
-        setClientsData(data.users);
+        const ClietnsData = data.users.map((client) => ({
+          id: client.id,
+          name: client.firstName + ' ' + client.lastName,
+          image: client.image,
+          email: client.email,
+          phone: client.phone,
+          city: client.address.city,
+        }))
+        setClientsData(ClietnsData);
       } catch (error) {
         toast.error('Error on fetch clients' + error);
       }
@@ -52,22 +59,8 @@ function ClientsTable() {
 
   const changeHandler = (id, field, value) => {
     setClientsData((prevs) => (
-      prevs.map((client) => {
-        if(client.id !== id) return client;
-        if(field === 'city') {
-          return {
-            ...client,
-            address : {
-              ...client.address,
-              city: value,
-            },
-          };
-        }
-        return {
-          ...client, [field]: value,
-        };
-      })
-    ))
+      prevs.map((client) => (client.id === id ? {...client, [field]: value} : client))
+    ));
   }
 
   const deleteHandler = (id) => {
@@ -79,7 +72,7 @@ function ClientsTable() {
     };
   };
 
-
+  console.log(clintsData);
   return (
     <motion.div className='bg-primary backdrop-blur-md shadow-lg rounded-xl p-4 sm:p-6 border border-border-primary mx-2 sm:mx-0 mb-8'
       initial={{opacity: 0, y: 20}}
@@ -112,7 +105,7 @@ function ClientsTable() {
                   animate={{opacity: 1, y: 0}}
                   transition={{delay: 0.1, duration: 0.3}}
                   className={`flex flex-col sm:table-row mb-4 sm:mb-0 border-b sm:border-b-0
-                    border-gray-700 sm:border-none p-2 sm:p-0 ${editingRow === client.id ? 'bg-secondary ring-gray-500' : ''}`}
+                    border-gray-700 sm:border-none p-2 sm:p-0 ${editingRow === client.id ? 'bg-secondary ring-1 ring-gray-500' : ''}`}
                 >
                   {/* Mobile View */}
                   <td className='sm:hidden px-3 py-2'>
@@ -123,12 +116,19 @@ function ClientsTable() {
                         />
                         <div className='ml-3'>
                           <div className='text-sm font-medium text-text-secondary'>
-                            {client.firstName} {client.lastName}
+                            {
+                              editingRow === client.id
+                              ? <input className='bg-transparent text-white border border-gray-400 w-40 p-1 mb-1 text-center text-xs ml-1' 
+                                  type="text" value={client.name}
+                                  onChange={(e) => changeHandler(client.id, 'name', e.target.value)}
+                                />
+                              : client.name
+                            }
                           </div>
                           <div className='text-xs text-text-primary'>
                             { 
                               editingRow === client.id
-                              ? <input className='bg-transparent text-white border border-gray-400 w-40 p-1 text-center text-xs ml-1' 
+                              ? <input className='bg-transparent text-white border border-gray-400 w-40 p-1 mb-1 text-center text-xs ml-1' 
                                   type="text" value={client.email}
                                   onChange={(e) => changeHandler(client.id, 'email', e.target.value)}
                                 />
@@ -153,7 +153,7 @@ function ClientsTable() {
                       <div>
                         Phone: {
                           editingRow === client.id
-                          ? <input className='bg-transparent text-white border border-gray-400 w-27 p-1 text-center text-xs ml-1' 
+                          ? <input className='bg-transparent text-white border border-gray-400 w-27 p-1 mb-1 text-center text-xs ml-1' 
                               type="text" value={client.phone}
                               onChange={(e) => changeHandler(client.id, 'phone', e.target.value)}
                             />
@@ -164,10 +164,10 @@ function ClientsTable() {
                         City: {
                           editingRow === client.id
                           ? <input className='bg-transparent text-white border border-gray-400 w-27 p-1 text-center text-xs ml-1' 
-                              type="text" value={client.address.city}
+                              type="text" value={client.city}
                               onChange={(e) => changeHandler(client.id, 'city', e.target.value)}
                             />
-                          : client.address.city
+                          : client.city
                         }
                       </div>
                     </div>
@@ -180,26 +180,33 @@ function ClientsTable() {
                       />
                       <div className='ml-4'>
                         <div className='text-sm font-medium text-text-secondary'>
-                          {client.firstName} {client.lastName}
+                            {
+                              editingRow === client.id
+                              ? <input className='bg-transparent text-white w-full max-w-60 border-none outline-none text-center' 
+                                  type="text" value={client.name}
+                                  onChange={(e) => changeHandler(client.id, 'name', e.target.value)}
+                                />
+                              : client.name
+                            }
                         </div>
                       </div>
                     </div>
                   </td>
                   {
                     ['email', 'phone', 'city'].map((field) => (
-                    <td key={field} className={`hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-text-primary border-b border-gray-700 ${editingRow === client.id ? 'border border-gray-400' : ''}`}>
+                    <td key={field} className={`hidden sm:table-cell px-6 py-4 whitespace-nowrap text-sm text-text-primary border-b border-gray-700 ${editingRow === client.id ? 'border border-gray-400' : ''}`}>
                         { 
                           editingRow === client.id
                           ? <input className='bg-transparent text-white w-full max-w-60 border-none outline-none text-center' 
-                              type="text" value={ field === 'city' ? client.address.city : client[field]}
+                              type="text" value={client[field]}
                               onChange={(e) => changeHandler(client.id, field, e.target.value)}
                             />
-                          : field === 'city' ? client.address.city : client[field]
+                          : client[field]
                         }
                       </td>
                     ))
                   }
-                  <td className='hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-text-primary border-b border-gray-700'>
+                  <td className='hidden sm:table-cell px-6 py-4 whitespace-nowrap text-sm text-text-primary border-b border-gray-700'>
                     <div className='flex space-x-1 -ml-2'>
                       <button className='text-indigo-500 hover:text-indigo-300 mr-2' onClick={() => 
                         editingRow === client.id 
