@@ -2,10 +2,8 @@
 const nextConfig = {
   images: {
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'cdn.dummyjson.com',
-      },
+      { protocol: 'https', hostname: 'dummyjson.com' },
+      { protocol: 'https', hostname: 'cdn.dummyjson.com' },
     ],
   },
   reactCompiler: true,

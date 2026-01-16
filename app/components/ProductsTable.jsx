@@ -109,6 +109,7 @@ function ProductsTable() {
                   className={`flex flex-col md:table-row mb-4 md:mb-0 border-b md:border-b-0
                     border-gray-700 md:border-none p-2 md:p-0 ${editingRow === product.id ? 'bg-secondary ring-gray-500': ''}`}
                 >
+                  {/* Mobile View */}
                   <td className='md:hidden px-3 py-2'>
                     <div className='flex items-center justify-between'>
                       <div className='flex items-center'>
@@ -153,6 +154,7 @@ function ProductsTable() {
                       ))}
                     </div>
                   </td>
+                  {/* Desktop View */}
                   <td className='hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm font-medium text-text-secondary border-b border-gray-700'>
                     <div className='flex items-center'>
                       <Image src={product.thumbnail} alt={product.title} width={40} height={40}
