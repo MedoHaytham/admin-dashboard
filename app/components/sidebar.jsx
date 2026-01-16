@@ -41,24 +41,6 @@ const sidebarItems  = [
     name: 'Settings',
     path: '/settings',
   },
-  {
-    id: 7,
-    icon: <Mail size={20} className='min-w-5'/>,
-    name: 'Messages',
-    path: '/messages',
-  },
-  {
-    id: 8,
-    icon: <Bell size={20} className='min-w-5'/>,
-    name: 'Notifications',
-    path: '/notifications',
-  },
-  {
-    id: 9,
-    icon: <Info size={20} className='min-w-5'/>,
-    name: 'Help',
-    path: '/help',
-  },
 ];
 
 
