@@ -69,7 +69,7 @@ function Sidebar() {
           {
             sidebarItems.map((item) => (
               <Link key={item.id} href={item.path}>
-                <div className={`flex items-center p-4 text-sm font-medium rounded-lg hover:bg-secondary transition-colors mb-2 ${pathname === item.path ? 'bg-secondary' : ''}`}>
+                <div className={`flex items-center p-4 text-sm font-medium rounded-lg hover:bg-secondary transition-colors mb-2 text-text-theme ${pathname === item.path ? 'bg-secondary' : ''}`}>
                   {item.icon}
                   {isSidebarOpen && <span className='ml-4 whitespace-nowrap'>{item.name}</span>}
                 </div>

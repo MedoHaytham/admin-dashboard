@@ -77,7 +77,7 @@ function ProductsTable() {
         <h2 className='text-lg md:text-xl font-semibold text-text-secondary text-center md:text-left'>Products List</h2>
         <div className='relative w-full md:w-auto'>
           <input onChange={(e) => setSearchTerm(e.target.value)} value={searchTerm} type="text" placeholder='Search Products...' 
-            className='bg-secondary text-white placeholder-gray-400 rounded-lg pl-10 pr-4 py-2 w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-gray-500 transition duration-200 text-sm'/>
+            className='bg-secondary text-text-theme placeholder-gray-400 rounded-lg pl-10 pr-4 py-2 w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-gray-500 transition duration-200 text-sm'/>
           <Search className='absolute left-3 top-2.5 text-gray-400' size={18}/>
         </div>
       </div>
@@ -114,7 +114,7 @@ function ProductsTable() {
                     <div className='flex items-center justify-between'>
                       <div className='flex items-center'>
                         <Image src={product.thumbnail} alt={product.title} width={36} height={36} 
-                          className='w-10 h-10 rounded-full bg-white'
+                          className='w-10 h-10 rounded-full bg-bg-theme'
                         />
                         <div className='ml-3'>
                           <div className='text-sm font-medium text-text-secondary'>
@@ -146,7 +146,7 @@ function ProductsTable() {
                             <span className='capitalize'>{field}:{" "}
                             { 
                             editingRow === product.id 
-                            ? <input className='bg-transparent text-white border border-gray-400 w-16 text-center text-xs ml-1' 
+                            ? <input className='bg-transparent text-text-theme border border-gray-400 w-16 text-center text-xs ml-1' 
                                 type="text" value={product[field]} onChange={(e) => changeHandler(product.id, field, e.target.value)}/>
                             : field === 'price'? `$${product[field].toFixed(2)}` : product[field]}</span>
                           }
@@ -158,7 +158,7 @@ function ProductsTable() {
                   <td className='hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm font-medium text-text-secondary border-b border-gray-700'>
                     <div className='flex items-center'>
                       <Image src={product.thumbnail} alt={product.title} width={40} height={40}
-                        className='w-12 h-12 rounded-full bg-white p-1'
+                        className='w-12 h-12 rounded-full bg-bg-theme p-1'
                       />
                       <div className='ml-4'>{product.title}</div>
                     </div>
@@ -174,7 +174,7 @@ function ProductsTable() {
                       {
                         editingRow === product.id 
                         ? <input type="text" value={product[field]} onChange={(e) => changeHandler(product.id, field, e.target.value)}
-                            className='bg-transparent text-white w-16 border-none outline-none text-center'
+                            className='bg-transparent text-text-theme w-16 border-none outline-none text-center'
                           />
                         : field === 'price' ? `$${product[field].toFixed(2)}` : product[field]
                       }
