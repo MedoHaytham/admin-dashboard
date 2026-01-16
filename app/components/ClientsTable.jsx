@@ -72,7 +72,6 @@ function ClientsTable() {
     };
   };
 
-  console.log(clintsData);
   return (
     <motion.div className='bg-primary backdrop-blur-md shadow-lg rounded-xl p-4 sm:p-6 border border-border-primary mx-2 sm:mx-0 mb-8'
       initial={{opacity: 0, y: 20}}
