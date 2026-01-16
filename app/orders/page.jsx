@@ -1,14 +1,12 @@
 "use client"
-import React, { useEffect, useState } from 'react'
-import { toast } from 'react-toastify';
+import React from 'react'
 import { motion } from 'framer-motion';
 import StatCard from '../components/statCard';
 import { Ban, CheckCheck, CheckCircle, Clock, ShoppingBag } from 'lucide-react';
 import OrdersTable from '../components/OrdersTable';
 
 
-function Products() {
-
+function Orders() {
   return (
     <div className='flex-1 overflow-auto relative z-10 hide-scrollbar'>
       <main className='max-w-7xl mx-auto py-6 px-4 lg:px-8'>
@@ -28,4 +26,4 @@ function Products() {
   )
 }
 
-export default Products
+export default Orders
