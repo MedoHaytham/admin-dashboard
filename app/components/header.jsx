@@ -9,6 +9,7 @@ import { useLogoutMutation } from '../features/authSlice'
 import { useDispatch } from 'react-redux'
 import apiSlice from '../api/apiSlice'
 import Cookies from 'js-cookie'
+import { useGetMeQuery } from '../features/userSlice'
 
 const countries = [
   { name: 'egypt', flag: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/svg/1f1ea-1f1ec.svg' },
@@ -35,6 +36,8 @@ const countries = [
 
 function Header() {
   const router = useRouter()
+  const { data: meData } = useGetMeQuery()
+  const fullName = meData.data.firstName + " " + meData.data.lastName
   const dispatch = useDispatch()
   const [logout] = useLogoutMutation()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
@@ -59,17 +62,24 @@ function Header() {
         <div className='flex items-center space-x-3 sm:space-x-6'>
           <ThemeToggle />
           <div className='flex items-center space-x-3 sm:space-x-4'>
-            <Image
-              src="https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/svg/1f1ea-1f1ec.svg"
-              alt="Egypt Flag"
-              width={20}
-              height={20}
-              className='shadow-md cursor-pointer'
-            />
+            {
+              countries.map((country) => (
+                country.name === meData.data.country && (
+                  <Image
+                    key={country.name}
+                    src={country.flag}
+                    alt={country.name}
+                    width={20}
+                  height={20}
+                  className='shadow-md cursor-pointer'
+                />
+                )
+              ))
+            }
             <div className='relative' onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
               <div className='flex items-center space-x-2 sm:space-x-3 cursor-pointer'>
                 <CircleUser className='w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 text-text-primary hover:text-text-theme transition-colors' />
-                <span className='hidden sm:block text-text-secondary font-medium'>Mohamed Haytham</span>
+                <span className='hidden sm:block text-text-secondary font-medium capitalize'>{fullName}</span>
               </div>
               {isDropdownOpen && (
                 <div className='absolute right-0 top-full mt-2 w-44 bg-primary border border-border-primary rounded-lg shadow-xl z-50 overflow-hidden'>
