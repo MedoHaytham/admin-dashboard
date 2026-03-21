@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -33,22 +34,22 @@ export default function ThemeToggle() {
       onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
       className="
         hidden group relative md:inline-flex items-center justify-between
-        w-20 h-10 rounded-full border border-border-primary
-        bg-secondary px-2 shadow-md
+        w-16 h-8 lg:w-20 lg:h-10 rounded-full border border-border-primary
+        bg-secondary px-2 shadow-md mr-3
         transition active:scale-[0.98]
         focus:outline-none focus-visible:ring-2 focus-visible:ring-text-secondary/40
       "
       aria-label="Toggle theme"
       title="Toggle theme"
     >
-      <span className="relative z-10 grid justify-center items-center pr-1 w-7 h-7">
+      <span className="relative z-10 grid justify-center items-center pr-1 w-6 h-6 lg:w-7 lg:h-7">
         <Moon
           size={16}
           className={`transition ${isLight ? "opacity-40" : "opacity-100"} text-text-secondary`}
         />
       </span>
 
-      <span className="relative z-10 grid justify-center items-center pl-2 w-7 h-7">
+      <span className="relative z-10 grid justify-center items-center pl-2 w-6 h-6 lg:w-7 lg:h-7">
         <Sun
           size={16}
           className={`transition ${isLight ? "opacity-100" : "opacity-40"} text-text-secondary`}
@@ -57,7 +58,7 @@ export default function ThemeToggle() {
 
       <span
         className={`
-          absolute top-1 left-1 h-8 w-8 rounded-full
+          absolute top-1 left-1 h-6 w-6 lg:h-8 lg:w-8 rounded-full
           bg-primary border border-border-primary
           shadow-lg transition-transform duration-300 ease-out
           ${isLight ? "translate-x-10" : "translate-x-0"}

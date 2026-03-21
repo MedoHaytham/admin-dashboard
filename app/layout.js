@@ -1,40 +1,23 @@
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Header from "./components/header";
-import Sidebar from './components/sidebar';
 import { ToastContainer } from "react-toastify";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import ReduxProvider from "./components/Reduxprovider";
+import LayoutShell from "./components/LayoutShell";
 
 export const metadata = {
   title: "Overview",
-  description: "adimn pages",
+  description: "admin pages",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <div className="flex h-screen overflow-hidden">
-          <Sidebar />
-          <div className="flex flex-col flex-1 overflow-auto">
-            <div className="max-w-7xl mx-auto w-full">
-              <Header />
-              <main>
-                <ToastContainer />
-                {children}
-              </main>
-            </div>
-          </div> 
-        </div>
+      <body>
+        <ToastContainer />
+        <ReduxProvider>
+          <LayoutShell>
+            {children}
+          </LayoutShell>
+        </ReduxProvider>
       </body>
     </html>
   );

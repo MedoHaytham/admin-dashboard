@@ -1,7 +1,7 @@
 "use client"
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
-import { House, DollarSign , Settings, ShoppingBag, ShoppingCart , Mail, Users, Bell, Info, Menu } from 'lucide-react';
+import { House, DollarSign , Settings, ShoppingBag, ShoppingCart , Users, Menu } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
 const sidebarItems  = [
