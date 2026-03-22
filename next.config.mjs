@@ -4,6 +4,7 @@ const nextConfig = {
     remotePatterns: [
       { protocol: 'https', hostname: 'dummyjson.com' },
       { protocol: 'https', hostname: 'cdn.dummyjson.com' },
+      { protocol: 'https', hostname: 'e-commerce-backend-geri.onrender.com' },
     ],
   },
   reactCompiler: true,

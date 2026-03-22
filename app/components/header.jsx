@@ -10,6 +10,7 @@ import { useDispatch } from 'react-redux'
 import apiSlice from '../api/apiSlice'
 import Cookies from 'js-cookie'
 import { useGetMeQuery } from '../features/userSlice'
+import { MdOutlineArrowDropDown } from 'react-icons/md'
 
 const countries = [
   { name: 'egypt', flag: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/svg/1f1ea-1f1ec.svg' },
@@ -80,6 +81,7 @@ function Header() {
               <div className='flex items-center space-x-2 sm:space-x-3 cursor-pointer'>
                 <CircleUser className='w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 text-text-primary hover:text-text-theme transition-colors' />
                 <span className='hidden sm:block text-text-secondary font-medium capitalize'>{fullName}</span>
+                <MdOutlineArrowDropDown />
               </div>
               {isDropdownOpen && (
                 <div className='absolute right-0 top-full mt-2 w-44 bg-primary border border-border-primary rounded-lg shadow-xl z-50 overflow-hidden'>
