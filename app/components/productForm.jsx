@@ -210,7 +210,7 @@ function AddProductForm({ categories, onClose, onAdd, onCategoryAdd, onCategoryD
               <button
                 type='button'
                 onClick={(e) => { e.stopPropagation(); setShowAddCategory(true); }}
-                className='flex items-center justify-center w-10 h-10 bg-secondary border border-gray-700 hover:border-indigo-500/60 text-indigo-400 hover:text-indigo-300 rounded-lg transition-all flex-shrink-0'
+                className='flex items-center justify-center w-10 h-10 bg-secondary border border-gray-700 hover:border-indigo-500/60 text-indigo-400 hover:text-indigo-300 rounded-lg transition-all shrink-0'
                 title='Add new category'
               >
                 <Plus size={18} />

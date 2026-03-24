@@ -11,6 +11,7 @@
   --text-secondary: #f3f4f6; /* grey-100 */
   --text-theme: #ffffff;
   --bg-theme: #ffffff;
+  --skelton-color: #596064;
 }
 
 html.light {
@@ -23,7 +24,8 @@ html.light {
   --text-primary: #1f2933;
   --text-secondary: #374151;
   --text-theme: #000000;
-  --bg-theme: #e5e7eb
+  --bg-theme: #e5e7eb;
+  --skelton-color: #e2e5e7;
 }
 
 @theme inline {
@@ -39,6 +41,7 @@ html.light {
   --color-text-secondary: var(--text-secondary);
   --color-text-theme: var(--text-theme);
   --color-bg-theme: var(--bg-theme);
+  --color-skelton-color: var(--skelton-color);
 }
 
 
@@ -58,7 +61,7 @@ body {
 }
 
 .skeltoin {
-  background-color: #596064;
+  background-color: var(--skelton-color);
   background-image: linear-gradient(
     90deg,
     rgba(255, 255, 255, 0),

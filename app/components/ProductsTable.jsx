@@ -8,6 +8,7 @@ import ProdcutsTableLoading from './ProdcutsTableLoading';
 import Cookies from 'js-cookie';
 import { GoPlus } from "react-icons/go";
 import AddProductForm from './productForm';
+import { motion } from 'framer-motion';
 
 
 function ProductsTable() {
@@ -178,7 +179,10 @@ function ProductsTable() {
             </thead>
             <tbody className='divide-y divide-gray-700'>
               {filteredProducts.map((product) => (
-                <tr
+                <motion.tr
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1, duration: 0.3 }}
                   key={product._id}
                   className={`flex flex-col md:table-row mb-4 md:mb-0 border-b md:border-b-0 border-gray-700 md:border-none p-2 md:p-0 ${editingRow === product._id ? 'bg-secondary' : ''}`}
                 >
@@ -248,7 +252,7 @@ function ProductsTable() {
                       </button>
                     </div>
                   </td>
-                </tr>
+                </motion.tr>
               ))}
             </tbody>
           </table>
