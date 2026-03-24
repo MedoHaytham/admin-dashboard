@@ -81,7 +81,7 @@ function Header() {
               <div className='flex items-center space-x-2 sm:space-x-3 cursor-pointer'>
                 <CircleUser className='w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 text-text-primary hover:text-text-theme transition-colors' />
                 <span className='hidden sm:block text-text-secondary font-medium capitalize'>{fullName}</span>
-                <MdOutlineArrowDropDown />
+                <MdOutlineArrowDropDown className={`w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-text-primary hover:text-text-theme duration-400 ease-in-out cursor-pointer ${isDropdownOpen ? 'rotate-180' : ''}`} />
               </div>
               {isDropdownOpen && (
                 <div className='absolute right-0 top-full mt-2 w-44 bg-primary border border-border-primary rounded-lg shadow-xl z-50 overflow-hidden'>

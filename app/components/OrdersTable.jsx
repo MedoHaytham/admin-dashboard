@@ -1,277 +1,202 @@
+'use client'
 import React, { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion';
-import { Edit, Save, Search, Trash2 } from 'lucide-react';
+import { Search, Trash2 } from 'lucide-react';
 import { toast } from 'react-toastify';
+import axios from 'axios';
+import Cookies from 'js-cookie';
 
-
+const STATUS_STYLES = {
+  confirmed:  'bg-green-400/20 text-green-400',
+  pending:    'bg-yellow-400/20 text-yellow-400',
+  cancelled:  'bg-red-400/20 text-red-400',
+  delivered:  'bg-blue-400/20 text-blue-400',
+  processing: 'bg-purple-400/20 text-purple-400',
+};
 
 function OrdersTable() {
-
-  const [orderData, setOrderData] =useState([]);
+  const [orderData, setOrderData] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedTerm, setDebouncedTerm] = useState('');
-  const [editingRow, setEditingRow] = useState(null);
-  
+  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect (() => {
+  // Debounce
+  useEffect(() => {
     const t = setTimeout(() => setDebouncedTerm(searchTerm.trim()), 300);
     return () => clearTimeout(t);
-  },[searchTerm]);
+  }, [searchTerm]);
 
+  // Filter
   const filteredOrders = useMemo(() => {
     const term = debouncedTerm.toLowerCase();
     if (!term) return orderData;
-    return (
-      orderData.filter((order) => {
-        const nameMatch = order.client?.toLowerCase().includes(term);
-        const emailMatch = order.email?.toLowerCase().includes(term);
-        const idMatch = order.id?.toLowerCase().includes(term);
-        return nameMatch || emailMatch || idMatch
-      })
-    );
-  },[debouncedTerm, orderData]);
+    return orderData.filter((order) => {
+      const nameMatch = `${order.user?.firstName} ${order.user?.lastName}`.toLowerCase().includes(term);
+      const emailMatch = order.user?.email?.toLowerCase().includes(term);
+      const idMatch = order._id?.toLowerCase().includes(term);
+      const merchantIdMatch = order.merchantOrderId?.toLowerCase().includes(term);
+      return nameMatch || emailMatch || idMatch || merchantIdMatch;
+    });
+  }, [debouncedTerm, orderData]);
 
-  const editClickHandler = (id) => {
-    setEditingRow(id);
-  }
-
-  const saveClickHandler = () => {
-    setEditingRow(null);
-  }
-
-  const changeHandler = (id, field, value) => {
-    setOrderData((prevs) => (
-      prevs.map((order) => (order.id === id ? {...order, [field]: value } : order)
-    )))
-  }
-
-  const deleteHandler = (id) => {
-    const confirmDelete = window.confirm('Are You Sure You Want To Remove This Order?');
-    if(confirmDelete) {
-      setOrderData(
-        (prevs) => prevs.filter((client) => client.id !== id)
-      );
-    };
-  };
-
+  // Fetch orders
   useEffect(() => {
     async function fetchOrders() {
       try {
-        const resones1 = await fetch('https://dummyjson.com/carts?limit=50&sortBy=total');
-        const cartData = await resones1.json();
-        const orderData = await Promise.all( 
-          cartData.carts.map( async (cart) => {
-            const respone2 = await fetch(`https://dummyjson.com/users/${cart.userId}`);
-            const userData = await respone2.json();
-
-            return {
-              id: `#A7B9D3${cart.id}`,
-              client: userData.firstName + ' ' + userData.lastName,
-              email: userData.email,
-              total: cart.total,
-              status: ['Delivered', 'Pending', 'Canceled'][cart.id % 3],
-              date: new Date().toDateString(),
-              city: userData.address.city 
-            };
-          })
+        setIsLoading(true);
+        const response = await axios.get(
+          'https://e-commerce-backend-geri.onrender.com/api/orders/all?limit=0',
+          { headers: { Authorization: `Bearer ${Cookies.get('accessToken')}` } }
         );
-        setOrderData(orderData);
+        setOrderData(response.data.data.orders);
       } catch (error) {
-        toast.error('Error on fetch orders' + error);
+        toast.error('Error fetching orders: ' + error);
+      } finally {
+        setIsLoading(false);
       }
     }
     fetchOrders();
-  },[]);
+  }, []);
 
+  // Update order status
+
+  // Delete order
+
+  const formatDate = (dateStr) =>
+    new Date(dateStr).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 
   return (
-    <motion.div className='bg-primary backdrop-blur-md shadow-lg rounded-xl p-4 md:p-6 border border-border-primary mx-2 md:mx-0 mb-8'
-      initial={{opacity: 0, y: 20}}
-      animate={{opacity: 1, y: 0}}
-      transition={{delay: 0.2, duration: 0.5}}
+    <motion.div
+      className='bg-primary backdrop-blur-md shadow-lg rounded-xl p-4 md:p-6 border border-border-primary mx-2 md:mx-0 mb-8'
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.2, duration: 0.5 }}
     >
+      {/* Header */}
       <div className='flex flex-col md:flex-row justify-between items-center mb-6 gap-4 md:gap-0'>
         <h2 className='text-lg md:text-xl font-semibold text-text-secondary text-center md:text-left'>Orders List</h2>
         <div className='relative w-full md:w-auto'>
-          <input onChange={(e) => setSearchTerm(e.target.value)} value={searchTerm} type="text" placeholder='Search Clinets...' 
-            className='bg-secondary text-white placeholder-gray-400 rounded-lg pl-10 pr-4 py-2 w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-gray-500 transition duration-200 text-sm'/>
-          <Search className='absolute left-3 top-2.5 text-gray-400' size={18}/>
+          <input
+            onChange={(e) => setSearchTerm(e.target.value)}
+            value={searchTerm}
+            type="text"
+            placeholder='Search orders...'
+            className='bg-secondary text-text-theme placeholder-gray-400 rounded-lg pl-10 pr-4 py-2 w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-gray-500 transition duration-200 text-sm'
+          />
+          <Search className='absolute left-3 top-2.5 text-gray-400' size={18} />
         </div>
       </div>
+
+      {/* Table */}
       <div className='relative h-100 overflow-auto'>
         <table className='min-w-full'>
           <thead className="sticky -top-px z-20 bg-primary md:border-b border-gray-700">
             <tr>
-              {[
-                'Order ID',
-                'Client',
-                'Total',
-                'Status',
-                'Date',
-                'City',
-                'Actions',
+              {['Order ID', 
+                'Client', 
+                'Items', 
+                'Total', 
+                'Status', 
+                'Payment', 
+                'Date', 
+                'City'
               ].map((header) => (
-                <th key={header} className='px-3 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider hidden md:table-cell'>{header}</th>
-              ))}
+                  <th key={header} className='px-3 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider hidden md:table-cell'>
+                    {header}
+                  </th>
+                ))}
             </tr>
           </thead>
           <tbody className='divide-y divide-gray-700'>
-            {
-              filteredOrders.map((order) => (
-                <motion.tr
-                  key={order.id}
-                  initial={{opacity: 0, y: 10}}
-                  animate={{opacity: 1, y: 0}}
-                  transition={{delay: 0.1, duration: 0.3}}
-                  className={`flex flex-col md:table-row mb-4 md:mb-0 border-b md:border-b-0
-                    border-gray-700 md:border-none p-2 md:p-0 ${editingRow === order.id ? 'bg-secondary ring-gray-500': ''}`}
-                >
-                  {/* Mobile View */}
-                  <td className='md:hidden px-3 py-2'>
-                    <div className='flex items-center justify-between'>
-                      <div className='flex flex-col'>
-                        <div className='text-xs font-medium text-text-secondary'>
-                          {order.id}
-                        </div>
-                        <div className='text-xs text-text-secondary'>
-                          { 
-                            editingRow === order.id
-                            ? <input className='bg-transparent text-white border border-gray-400 w-40 p-1 mb-1 text-center text-xs ml-1' 
-                                type="text" value={order.client}
-                                onChange={(e) => changeHandler(order.id, 'client', e.target.value)}
-                              />
-                            : order.client
-                          }
-                        </div>
-                        <div className='text-xs text-gray-400'>
-                          { 
-                            editingRow === order.id
-                            ? <input className='bg-transparent text-white border border-gray-400 w-40 p-1 mb-1 text-center text-xs ml-1' 
-                                type="text" value={order.email}
-                                onChange={(e) => changeHandler(order.id, 'email', e.target.value)}
-                              />
-                            : order.email
-                          }
-                        </div>                      
+            {filteredOrders.map((order) => (
+              <motion.tr
+                key={order._id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1, duration: 0.3 }}
+                className='flex flex-col md:table-row mb-4 md:mb-0 border-b md:border-b-0 border-gray-700 md:border-none p-2 md:p-0'
+              >
+                {/* ===== Mobile ===== */}
+                <td className='md:hidden px-3 py-2'>
+                  <div className='flex items-center justify-between mb-2'>
+                    <div>
+                      <div className='text-xs font-medium text-text-secondary'>{order.merchantOrderId}</div>
+                      <div className='text-xs text-text-primary font-medium'>
+                        {order.user?.firstName} {order.user?.lastName}
                       </div>
-                      <div className='flex space-x-1 -mt-1 -mr-1'>
-                        <button className='text-indigo-500 hover:text-indigo-300' onClick={() =>
-                          editingRow === order.id ? saveClickHandler() : editClickHandler(order.id)
-                        }>
-                          {
-                            editingRow === order.id ? <Save size={16} /> : <Edit size={16} />
-                          }
-                        </button>
-                        <button className='text-red-500 hover:text-red-300' onClick={() => deleteHandler(order.id)}>
-                          <Trash2 size={16} />
-                        </button>
+                      <div className='text-xs text-gray-400'>{order.user?.email}</div>
+                    </div>
+                  </div>
+                  <div className='text-xs text-text-primary space-y-1'>
+                    <div>Items: {order.items?.length}</div>
+                    <div>Total: <span className='text-text-secondary font-medium'>${order.totalPrice?.toFixed(2)}</span></div>
+                    <div className='flex items-center gap-2'>
+                      Status:{' '}
+                      <div
+                        className='bg-secondary text-text-theme border border-gray-600 rounded px-1 py-0.5 text-xs outline-none'
+                      >
+                        {order.orderStatus}
                       </div>
                     </div>
-                    <div className='mt-2 text-xs text-text-primary'>
-                      <div className='mb-1'>Total: ${order.total.toFixed(2)}</div>
-                      <div className='flex items-center gap-1 mb-1'>
-                        status: 
-                        <span className={`px-2 inline-flex text-xs font-semibold rounded-full ${
-                          order.status === 'Delivered' 
-                          ? 'bg-green-400 text-green-800' 
-                          : order.status === 'Pending'
-                          ? 'bg-yellow-400 text-yellow-800'
-                          : 'bg-red-400 text-red-800'
-                          }`}
-                        >
-                          {order.status}
-                          </span>
-                      </div>
-                      <div className='mb-1'>Date: {order.date}</div>
-                      <div>City: { 
-                          editingRow === order.id
-                          ? <input className='bg-transparent text-white border border-gray-400 w-30 p-1 mb-1 text-center text-xs ml-1' 
-                              type="text" value={order.city}
-                              onChange={(e) => changeHandler(order.id, 'city', e.target.value)}
-                            />
-                          : order.city
-                          }
-                      </div>
+                    <div className='flex items-center gap-1'>
+                      Payment:{' '}
+                      <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${order.isPaid ? 'bg-green-400/20 text-green-400' : 'bg-red-400/20 text-red-400'}`}>
+                        {order.isPaid ? 'Paid' : 'Unpaid'}
+                      </span>
                     </div>
-                  </td>
-                  {/* Desktop View */}
-                  <td className='hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-text-primary border-b border-gray-700'>
-                      {order.id}
-                  </td>
-                  <td className={`hidden sm:table-cell px-6 py-4 whitespace-nowrap text-sm text-text-primary border-b border-gray-700 ${editingRow === order.id ? 'border border-gray-400' : ''}`}>
-                    <div className='flex flex-col'>
-                      <div>
-                        {
-                          editingRow === order.id
-                          ? <input className='bg-transparent text-white w-full max-w-60 border-none outline-none text-center' 
-                              type="text" value={order.client}
-                              onChange={(e) => changeHandler(order.id, 'client', e.target.value)}
-                            />
-                          : order.client
-                        }
-                      </div>
-                      <div>
-                        {
-                          editingRow === order.id
-                          ? <input className='bg-transparent text-white w-full max-w-60 border-none outline-none text-center' 
-                              type="text" value={order.email}
-                              onChange={(e) => changeHandler(order.id, 'email', e.target.value)}
-                            />
-                          : order.email
-                        }
-                      </div>
-                    </div>
-                  </td>
-                  <td className='hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-text-primary border-b border-gray-700'>
-                      ${order.total.toFixed(2)}
-                  </td>
-                  <td className='hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm border-b border-gray-700'>
-                    <span className={`px-2 inline-flex text-xs font-semibold rounded-full ${
-                      order.status === 'Delivered' 
-                      ? 'bg-green-400 text-green-800' 
-                      : order.status === 'Pending'
-                      ? 'bg-yellow-400 text-yellow-800'
-                      : 'bg-red-400 text-red-800'
-                      }`}
-                    >
-                      {order.status}
-                    </span>
-                  </td>
-                  <td className='hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-text-primary border-b border-gray-700'>
-                      {order.date}
-                  </td>
-                  <td className={`hidden sm:table-cell px-6 py-4 whitespace-nowrap text-sm text-text-primary border-b border-gray-700 ${editingRow === order.id ? 'border border-gray-400' : ''}`}>
-                    {
-                      editingRow === order.id
-                      ? <input className='bg-transparent text-white w-full max-w-60 border-none outline-none text-center' 
-                          type="text" value={order.city}
-                          onChange={(e) => changeHandler(order.id, 'city', e.target.value)}
-                        />
-                      : order.city
-                    }
-                  </td>
-                  <td className='hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-text-primary border-b border-gray-700'>
-                    <div className='flex space-x-1 -ml-2'>
-                      <button className='text-indigo-500 hover:text-indigo-300 mr-2' onClick={() =>
-                        editingRow === order.id 
-                        ? saveClickHandler() 
-                        : editClickHandler(order.id)
-                      }>
-                        { editingRow === order.id ? <Save size={18} /> :<Edit size={18}/>}
-                      </button>
-                      <button className='text-red-500 hover:text-red-300' onClick={() => deleteHandler(order.id)}>
-                        <Trash2 size={18}/>
-                      </button>
-                    </div>
-                  </td>
-                </motion.tr>
-              ))
-            }
+                    <div>Date: {formatDate(order.createdAt)}</div>
+                    <div className='capitalize'>City: {order.shippingAddress?.city}</div>
+                  </div>
+                </td>
+
+                {/* ===== Desktop ===== */}
+                {/* Order ID */}
+                <td className='hidden md:table-cell px-6 py-4 whitespace-nowrap text-xs text-text-primary border-b border-gray-700'>
+                  <div>{order.merchantOrderId}</div>
+                  <div className='text-gray-500 text-xs'>{order._id}</div>
+                </td>
+                {/* Client */}
+                <td className='hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-text-primary border-b border-gray-700'>
+                  <div className='font-medium text-text-secondary'>{order.user?.firstName} {order.user?.lastName}</div>
+                  <div className='text-xs text-gray-400'>{order.user?.email}</div>
+                </td>
+                {/* Items */}
+                <td className='hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-text-primary border-b border-gray-700'>
+                  {order.items?.length} item{order.items?.length !== 1 ? 's' : ''}
+                </td>
+                {/* Total */}
+                <td className='hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-text-secondary font-medium border-b border-gray-700'>
+                  ${order.totalPrice?.toFixed(2)}
+                </td>
+                {/* Status */}
+                <td className='hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm border-b border-gray-700'>
+                  <div
+                    className={`rounded-lg text-center px-2 py-1 text-xs outline-none capitalize ${STATUS_STYLES[order.orderStatus] || 'bg-secondary text-text-theme'}`}
+                  >
+                    {order.orderStatus}
+                  </div>
+                </td>
+                {/* Payment */}
+                <td className='hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm border-b border-gray-700'>
+                  <span className={`px-2 py-1 text-xs font-semibold rounded-full ${order.isPaid ? 'bg-green-400/20 text-green-400' : 'bg-red-400/20 text-red-400'}`}>
+                    {order.isPaid ? 'Paid' : 'Unpaid'}
+                  </span>
+                </td>
+                {/* Date */}
+                <td className='hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-text-primary border-b border-gray-700'>
+                  {formatDate(order.createdAt)}
+                </td>
+                {/* City */}
+                <td className='hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-text-primary border-b border-gray-700 capitalize'>
+                  {order.shippingAddress?.city}
+                </td>
+              </motion.tr>
+            ))}
           </tbody>
         </table>
       </div>
     </motion.div>
-  )
+  );
 }
 
-export default OrdersTable
+export default OrdersTable;
