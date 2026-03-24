@@ -131,7 +131,7 @@ function OrdersTable() {
                     <div className='flex items-center gap-2'>
                       Status:{' '}
                       <div
-                        className='bg-secondary text-text-theme border border-gray-600 rounded px-1 py-0.5 text-xs outline-none'
+                        className={`rounded px-1 py-0.5 text-xs outline-none ${STATUS_STYLES[order.orderStatus] || 'bg-secondary text-text-theme'}`}
                       >
                         {order.orderStatus}
                       </div>
