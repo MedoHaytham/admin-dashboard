@@ -1,11 +1,11 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 import React, { useEffect, useMemo, useState } from 'react'
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
 import { Edit, Save, Search, Trash2 } from 'lucide-react';
-import axios from 'axios';
-import Cookies from 'js-cookie';
 import ClientsTableLoading from './ClientsTableLoading';
+import { useGetUsersQuery, useUpdateUserMutation, useDeleteUserMutation } from '../features/userSlice';
 
 const countries = [
   'egypt', 'saudi arabia', 'uae', 'qatar', 'american', 'british',
@@ -16,11 +16,22 @@ const countries = [
 
 function ClientsTable() {
 
-  const [clientsData, setClientsData] = useState([]);
+  const { data: clients, isLoading } = useGetUsersQuery();
+
+  const clientsData = clients?.data.map((client) => ({
+    id: client._id,
+    name: client.firstName + ' ' + client.lastName,
+    email: client.email,
+    phone: client.phone,
+    country: client.country,
+    role: client.role,
+  })) || [];
+
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedTerm, setDebouncedTerm] = useState('');
   const [editingRow, setEditingRow] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [editedFields, setEditedFields] = useState({});
+
 
   // Debounce search
   useEffect(() => {
@@ -39,58 +50,36 @@ function ClientsTable() {
     });
   }, [debouncedTerm, clientsData]);
 
-  // Fetch clients
-  useEffect(() => {
-    async function fetchClients() {
-      try {
-        setIsLoading(true);
-        const response = await axios.get(
-          'https://e-commerce-backend-geri.onrender.com/api/users',
-          { headers: { 'Authorization': `Bearer ${Cookies.get('accessToken')}` } }
-        );
-        const mapped = response.data.data.map((client) => ({
-          id: client._id,
-          name: client.firstName + ' ' + client.lastName,
-          email: client.email,
-          phone: client.phone,
-          country: client.country,
-          role: client.role,
-        }));
-        setClientsData(mapped);
-      } catch (error) {
-        toast.error('Error fetching clients: ' + error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchClients();
-  }, []);
+  const [updateUser] = useUpdateUserMutation();
+  const [deleteUser] = useDeleteUserMutation();
+
+  const getEditedClient = (client) => {
+    const edits = editedFields[client.id];
+    return edits ? { ...client, ...edits } : client;
+  };
 
   // Change local state
   const changeHandler = (id, field, value) => {
-    setClientsData((prevs) =>
-      prevs.map((client) => client.id === id ? { ...client, [field]: value } : client)
-    );
+    setEditedFields((prev) => ({ ...prev, [id]: { ...prev[id], [field]: value } }));
   };
 
   // Save — send API request
   const saveClickHandler = async (id) => {
-    const client = clientsData.find((c) => c.id === id);
+    const client = getEditedClient(clientsData.find((c) => c.id === id));
     try {
-      await axios.patch(
-        `https://e-commerce-backend-geri.onrender.com/api/users/${id}`,
-        {
-          firstName: client.name.split(' ')[0],
-          lastName: client.name.split(' ')[1],
-          email: client.email,
-          phone: client.phone,
-          country: client.country,
-          role: client.role,
-        },
-        { headers: { 'Authorization': `Bearer ${Cookies.get('accessToken')}` } }
-      );
+      await updateUser({
+        userId: id,
+        firstName: client.name.split(' ')[0],
+        lastName: client.name.split(' ').slice(1).join(' '),
+        email: client.email,
+        phone: client.phone,
+        country: client.country,
+        role: client.role,
+      }).unwrap();
+      toast.success('Client updated successfully');
+      setEditedFields((prev) => { const next = { ...prev }; delete next[id]; return next; });
     } catch (error) {
-      toast.error(error?.response?.data?.message || 'Error updating client');
+      toast.error(error?.data?.message || 'Error updating client');
     } finally {
       setEditingRow(null);
     }
@@ -100,14 +89,10 @@ function ClientsTable() {
   const deleteHandler = async (id) => {
     if (!window.confirm('Are you sure you want to remove this client?')) return;
     try {
-      await axios.delete(
-        `https://e-commerce-backend-geri.onrender.com/api/users/${id}`,
-        { headers: { 'Authorization': `Bearer ${Cookies.get('accessToken')}` } }
-      );
-      setClientsData((prevs) => prevs.filter((client) => client.id !== id));
-      toast.success('Client removed successfully');
+      await deleteUser(id).unwrap();
+      toast.success('Client deleted successfully');
     } catch (error) {
-      toast.error(error?.response?.data?.message || 'Error removing client');
+      toast.error(error?.data?.message || 'Error deleting client');
     }
   };
 
@@ -159,7 +144,7 @@ function ClientsTable() {
                         {editingRow === client.id ? (
                           <input
                             className='bg-transparent text-text-theme border border-gray-400 w-40 p-1 text-center text-xs'
-                            type="text" value={client.name}
+                            type="text" value={getEditedClient(client).name}
                             onChange={(e) => changeHandler(client.id, 'name', e.target.value)}
                           />
                         ) : client.name}
@@ -168,7 +153,7 @@ function ClientsTable() {
                         {editingRow === client.id ? (
                           <input
                             className='bg-transparent text-text-theme border border-gray-400 w-40 p-1 text-center text-xs'
-                            type="text" value={client.email}
+                            type="text" value={getEditedClient(client).email}
                             onChange={(e) => changeHandler(client.id, 'email', e.target.value)}
                           />
                         ) : client.email}
@@ -191,7 +176,7 @@ function ClientsTable() {
                       {editingRow === client.id ? (
                         <input
                           className='bg-transparent text-text-theme border border-gray-400 w-28 p-1 text-center text-xs ml-1'
-                          type="text" value={client.phone}
+                          type="text" value={getEditedClient(client).phone}
                           onChange={(e) => changeHandler(client.id, 'phone', e.target.value)}
                         />
                       ) : client.phone}
@@ -200,7 +185,7 @@ function ClientsTable() {
                       {editingRow === client.id ? (
                         <select
                           className='bg-secondary text-text-theme border border-gray-500 rounded px-1 py-0.5 text-xs outline-none ml-1 capitalize'
-                          value={client.country}
+                          value={getEditedClient(client).country}
                           onChange={(e) => changeHandler(client.id, 'country', e.target.value)}
                         >
                           {countries.map((c) => (
@@ -213,7 +198,7 @@ function ClientsTable() {
                       {editingRow === client.id ? (
                         <select
                           className='bg-secondary text-text-theme border border-gray-500 rounded px-1 py-0.5 text-xs outline-none ml-1'
-                          value={client.role}
+                          value={getEditedClient(client).role}
                           onChange={(e) => changeHandler(client.id, 'role', e.target.value)}
                         >
                           <option value="admin">Admin</option>
@@ -232,7 +217,7 @@ function ClientsTable() {
                     {editingRow === client.id ? (
                       <input
                         className='bg-transparent text-text-theme w-full max-w-60 border-none outline-none'
-                        type="text" value={client.name}
+                        type="text" value={getEditedClient(client).name}
                         onChange={(e) => changeHandler(client.id, 'name', e.target.value)}
                       />
                     ) : client.name}
@@ -244,7 +229,7 @@ function ClientsTable() {
                     {editingRow === client.id ? (
                       <input
                         className='bg-transparent text-text-theme w-full max-w-60 border-none outline-none'
-                        type="text" value={client[field]}
+                        type="text" value={getEditedClient(client)[field]}
                         onChange={(e) => changeHandler(client.id, field, e.target.value)}
                       />
                     ) : client[field]}
@@ -255,7 +240,7 @@ function ClientsTable() {
                   {editingRow === client.id ? (
                     <select
                       className='bg-secondary text-text-theme border border-gray-500 rounded px-2 py-1 text-sm outline-none capitalize'
-                      value={client.country}
+                      value={getEditedClient(client).country}
                       onChange={(e) => changeHandler(client.id, 'country', e.target.value)}
                     >
                       {countries.map((c) => (
@@ -268,7 +253,7 @@ function ClientsTable() {
                 <td className='hidden sm:table-cell px-6 py-4 whitespace-nowrap text-sm text-text-primary border-b border-gray-700'>
                   {editingRow === client.id ? <select
                     className='bg-secondary text-text-theme border border-gray-500 rounded px-2 py-1 text-sm outline-none'
-                    value={client.role}
+                    value={getEditedClient(client).role}
                     onChange={(e) => changeHandler(client.id, 'role', e.target.value)}
                     disabled={editingRow !== client.id}
                   >

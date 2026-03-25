@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client"
 import React from 'react'
 import { motion } from 'framer-motion';
@@ -6,37 +7,29 @@ import { Ban, CheckCheck, CheckCircle, Clock, ShoppingBag } from 'lucide-react';
 import OrdersTable from '../components/OrdersTable';
 import { useState } from 'react';
 import { useEffect } from 'react';
-import axios from 'axios';
-import Cookies from 'js-cookie';
+import { useGetOrdersQuery } from '../features/orderSlice';
 
 
 
 function Orders() {
 
-  const [totalOrders, setTotalOrders] = useState('loading...');
-  const [completedOrders, setCompletedOrders] = useState('loading...');
-  const [pendingOrders, setPendingOrders] = useState('loading...');
-  const [canceledOrders, setCanceledOrders] = useState('loading...');
+  const { data: orders, isLoading } = useGetOrdersQuery();
+  const ordersData = orders?.data?.orders || [];
+
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [completedOrders, setCompletedOrders] = useState(0);
+  const [pendingOrders, setPendingOrders] = useState(0);
+  const [canceledOrders, setCanceledOrders] = useState(0);
 
   useEffect(() => {
-    async function fetchOrders() {
-      try {
-        const response = await axios.get('https://e-commerce-backend-geri.onrender.com/api/orders/all?limit=0', {
-          headers: { Authorization: `Bearer ${Cookies.get('accessToken')}` }
-        });
-        const orders = response.data.data.orders;
-        setTotalOrders(orders.length);
-        setCompletedOrders(orders.filter(o => o.orderStatus === 'confirmed').length);
-        setPendingOrders(orders.filter(o => o.orderStatus === 'pending').length);
-        setCanceledOrders(orders.filter(o => o.orderStatus === 'cancelled').length);
-      } catch (error) {
-        console.error('Error fetching orders:', error);
-      }
+    if (ordersData) {
+      setTotalOrders(isLoading ? 'loading...' : ordersData.length);
+      setCompletedOrders(isLoading ? 'loading...' : ordersData.filter(o => o.orderStatus === 'confirmed').length);
+      setPendingOrders(isLoading ? 'loading...' : ordersData.filter(o => o.orderStatus === 'pending').length);
+      setCanceledOrders(isLoading ? 'loading...' : ordersData.filter(o => o.orderStatus === 'cancelled').length);
     }
-    fetchOrders();
-  }, []);
+  }, [ordersData, isLoading]);
 
-  
   
   return (
     <div className='flex-1 overflow-auto relative z-10 hide-scrollbar'>

@@ -23,7 +23,7 @@ const baseQueryWithAuth = async (args, api, extraOptions) => {
     url === "/auth/register" ||
     url === "/auth/refresh";
 
-  if (result.error?.status === 401 && !isAuthRoute) {
+  if (result?.error?.status === 401 && !isAuthRoute) {
     const refreshResult = await baseQuery('/auth/refresh', api, extraOptions);
     if (refreshResult?.data) {
       const { accessToken } = refreshResult.data?.data;
@@ -41,8 +41,8 @@ const baseQueryWithAuth = async (args, api, extraOptions) => {
 
 const apiSlice = createApi({
   baseQuery: baseQueryWithAuth,
-  tagTypes: ['Me'],
-  endpoints: (builder) => ({}),
+  tagTypes: ['Me', 'Users', 'Products', 'Categories', 'Orders'],
+  endpoints: () => ({}),
 });
 
 export default apiSlice;

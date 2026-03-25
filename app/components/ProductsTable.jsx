@@ -1,24 +1,30 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client"
 import React, { useEffect, useMemo, useState } from 'react'
-import axios from 'axios';
 import { Edit, Save, Search, Trash2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import Image from 'next/image';
 import ProdcutsTableLoading from './ProdcutsTableLoading';
-import Cookies from 'js-cookie';
 import { GoPlus } from "react-icons/go";
 import AddProductForm from './productForm';
 import { motion } from 'framer-motion';
+import { useGetProductsQuery, useGetCategoriesQuery, useUpdateProductMutation, useDeleteProductMutation } from '../features/productsSlice';
 
 
 function ProductsTable() {
-  const [productsData, setProductsData] = useState([]);
-  const [categories, setCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedTerm, setDebouncedTerm] = useState('');
   const [editingRow, setEditingRow] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [editedFields, setEditedFields] = useState({});
   const [showAddModal, setShowAddModal] = useState(false);
+
+  const { data: productsRes, isLoading: productsLoading } = useGetProductsQuery();
+  const { data: categoriesRes, isLoading: categoriesLoading } = useGetCategoriesQuery();
+
+  const productsData = productsRes?.data || [];
+  const categories = categoriesRes?.data || [];
+
+  const isLoading = productsLoading || categoriesLoading;
 
   // Debounce search
   useEffect(() => {
@@ -37,67 +43,43 @@ function ProductsTable() {
     });
   }, [debouncedTerm, productsData]);
 
-  // Fetch products
-  useEffect(() => {
-    async function fetchProducts() {
-      try {
-        setIsLoading(true);
-        const response = await axios.get('https://e-commerce-backend-geri.onrender.com/api/products?limit=0');
-        setProductsData(response.data.data);
-      } catch (error) {
-        toast.error('Error fetching products: ' + error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchProducts();
-  }, []);
 
-  // Fetch categories
-  useEffect(() => {
-    async function fetchCategories() {
-      try {
-        const response = await axios.get('https://e-commerce-backend-geri.onrender.com/api/categories?limit=0');
-        setCategories(response.data.data);
-      } catch (error) {
-        toast.error('Error fetching categories: ' + error);
-      }
-    }
-    fetchCategories();
-  }, []);
+  const [updateProduct] = useUpdateProductMutation();
+  const [deleteProduct] = useDeleteProductMutation();
+
+  const getEditedProduct = (product) => {
+    const edits = editedFields[product._id];
+    return edits ? { ...product, ...edits } : product;
+  };
 
   const changeHandler = (id, field, value) => {
     if (field === 'price' || field === 'stock') {
       if (!/^\d*\.?\d*$/.test(value)) return;
     }
-    setProductsData((prevs) =>
-      prevs.map((product) => {
-        if (product._id !== id) return product;
-        if (field === 'category') {
-          const selectedCategory = categories.find((c) => c._id === value);
-          return { ...product, category: selectedCategory };
-        }
-        return { ...product, [field]: value };
-      })
-    );
+    if (field === 'category') {
+      const selectedCategory = categories.find((c) => c._id === value);
+      setEditedFields((prev) => ({ ...prev, [id]: { ...prev[id], category: selectedCategory } }));
+    } else {
+      setEditedFields((prev) => ({ ...prev, [id]: { ...prev[id], [field]: value } }));
+    }
   };
 
   const saveClickHandler = async (id) => {
-    const product = productsData.find((p) => p._id === id);
+    const product = getEditedProduct(productsData.find((p) => p._id === id));
     try {
-      await axios.patch(
-        `https://e-commerce-backend-geri.onrender.com/api/products/${id}`,
-        {
+      await updateProduct({
+         id,
+        data: {
           title: product.title,
           price: Number(product.price),
           stock: Number(product.stock),
           category: product.category?._id,
         },
-        { headers: { 'Authorization': `Bearer ${Cookies.get('accessToken')}` } }
-      );
+      }).unwrap();
       toast.success('Product updated successfully');
+      setEditedFields((prev) => { const next = { ...prev }; delete next[id]; return next; });
     } catch (error) {
-      toast.error(error?.response?.data?.message || 'Error updating product');
+      toast.error(error?.data?.message || 'Error updating product');
     } finally {
       setEditingRow(null);
     }
@@ -106,18 +88,15 @@ function ProductsTable() {
   const deleteHandler = async (id) => {
     if (!window.confirm('Are you sure you want to delete this product?')) return;
     try {
-      await axios.delete(
-        `https://e-commerce-backend-geri.onrender.com/api/products/${id}`,
-        { headers: { 'Authorization': `Bearer ${Cookies.get('accessToken')}` } }
-      );
-      setProductsData((prevs) => prevs.filter((product) => product._id !== id));
+      await deleteProduct(id).unwrap();
       toast.success('Product deleted successfully');
     } catch (error) {
-      toast.error(error?.response?.data?.message || 'Error deleting product');
+      toast.error(error?.data?.message || 'Error deleting product');
     }
   };
 
-  const displayValue = (product, field) => {
+  const displayValue = (p, field) => {
+    const product = getEditedProduct(p);
     if (field === 'price') return `$${Number(product[field]).toFixed(2)}`;
     if (field === 'category') return product.category?.name;
     return product[field];
@@ -132,9 +111,6 @@ function ProductsTable() {
         <AddProductForm
           categories={categories}
           onClose={() => setShowAddModal(false)}
-          onAdd={(newProduct) => setProductsData((prev) => [newProduct, ...prev])}
-          onCategoryAdd={(newCategory) => setCategories((prev) => [...prev, newCategory])}
-          onCategoryDelete={(id) => setCategories((prev) => prev.filter((c) => c._id !== id))}
         />
       )}
 
@@ -209,7 +185,7 @@ function ProductsTable() {
                       <div className='capitalize'>
                         category:{' '}
                         {editingRow === product._id ? (
-                          <select value={product.category?._id} onChange={(e) => changeHandler(product._id, 'category', e.target.value)} className='bg-secondary text-text-theme border border-gray-500 rounded px-1 py-0.5 text-xs outline-none ml-1'>
+                          <select value={getEditedProduct(product).category?._id} onChange={(e) => changeHandler(product._id, 'category', e.target.value)} className='bg-secondary text-text-theme border border-gray-500 rounded px-1 py-0.5 text-xs outline-none ml-1'>
                             {categories.map((cat) => <option key={cat._id} value={cat._id}>{cat.name}</option>)}
                           </select>
                         ) : product.category?.name}
@@ -218,7 +194,7 @@ function ProductsTable() {
                         <div key={field} className='capitalize'>
                           {field}:{' '}
                           {editingRow === product._id ? (
-                            <input className='bg-transparent text-text-theme border border-gray-400 w-20 text-center text-xs ml-1' type="text" value={product[field]} onChange={(e) => changeHandler(product._id, field, e.target.value)} />
+                            <input className='bg-transparent text-text-theme border border-gray-400 w-20 text-center text-xs ml-1' type="text" value={getEditedProduct(product)[field]} onChange={(e) => changeHandler(product._id, field, e.target.value)} />
                           ) : displayValue(product, field)}
                         </div>
                       ))}
@@ -230,14 +206,14 @@ function ProductsTable() {
                   </td>
                   <td className='hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-text-primary border-b border-gray-700'>{product._id}</td>
                   {['title', 'category', 'price', 'stock'].map((field) => (
-                    <td key={field} className={`hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-text-primary border-b border-gray-700 max-w-[200px] ${field === 'category' ? '' : 'truncate'} ${editingRow === product._id && field !== 'category' ? 'ring-1 ring-gray-400' : ''}`}>
+                    <td key={field} className={`hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-text-primary max-w-[200px] ${editingRow === product._id ? 'border-x border-gray-400' : 'border-b border-gray-700'} ${field === 'category' ? '' : 'truncate'}`}>
                       {editingRow === product._id ? (
                         field === 'category' ? (
-                          <select value={product.category?._id} onChange={(e) => changeHandler(product._id, 'category', e.target.value)} className='bg-secondary text-text-theme border border-gray-500 rounded px-2 py-1 text-sm outline-none'>
+                          <select value={getEditedProduct(product).category?._id} onChange={(e) => changeHandler(product._id, 'category', e.target.value)} className='bg-secondary text-text-theme border border-gray-500 rounded px-2 py-1 text-sm outline-none'>
                             {categories.map((cat) => <option key={cat._id} value={cat._id}>{cat.name}</option>)}
                           </select>
                         ) : (
-                          <input type="text" value={product[field]} onChange={(e) => changeHandler(product._id, field, e.target.value)} className='bg-transparent text-text-theme border-none outline-none w-full' />
+                          <input type="text" value={getEditedProduct(product)[field]} onChange={(e) => changeHandler(product._id, field, e.target.value)} className='bg-transparent text-text-theme border-none outline-none w-full' />
                         )
                       ) : displayValue(product, field)}
                     </td>

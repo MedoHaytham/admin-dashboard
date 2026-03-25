@@ -1,41 +1,36 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client"
 import React from 'react'
 import { motion } from 'framer-motion';
 import StatCard from '../components/statCard';
 import ClientsTable from '../components/ClientsTable';
 import { UserStar, UserIcon, UserPlus, Crown } from 'lucide-react';
-import axios from 'axios';
 import { useEffect } from 'react';
 import { useState } from 'react';
-import Cookies from 'js-cookie';
+import { useGetUsersQuery } from '../features/userSlice';
 
 function Clietns() {
 
-  const [totalClients, setTotalClients] = useState('loading...');
-  const [admins, setAdmins] = useState('loading...');
-  const [managers, setManagers] = useState('loading...');
-  const [users, setUsers] = useState('loading...');
+
+  const { data: clients, isLoading } = useGetUsersQuery();
+  
+  const clientsData = clients?.data || [];
+
+  const [totalClients, setTotalClients] = useState(0);
+  const [admins, setAdmins] = useState(0);
+  const [managers, setManagers] = useState(0);
+  const [users, setUsers] = useState(0);
 
   useEffect(() => {
-    const fetchClients = async () => {
-      try {
-        const response = await axios.get('https://e-commerce-backend-geri.onrender.com/api/users', {
-          headers: {
-            'Authorization': `Bearer ${Cookies.get('accessToken')}`
-          }
-        });
-        const data = response.data.data;
-        console.log(data);
-        setTotalClients(data.length);
-        setAdmins(data.filter((client) => client.role === 'admin').length);
-        setManagers(data.filter((client) => client.role === 'manager').length);
-        setUsers(data.filter((client) => client.role === 'user').length);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchClients();
-  }, []);
+    if (clientsData) {
+      setTotalClients(isLoading ? 'loading...' : clientsData.length);
+      setAdmins(isLoading ? 'loading...' : clientsData.filter((client) => client.role === 'admin').length);
+      setManagers(isLoading ? 'loading...' : clientsData.filter((client) => client.role === 'manager').length);
+      setUsers(isLoading ? 'loading...' : clientsData.filter((client) => client.role === 'user').length);
+    }
+  }, [clientsData]);
+
+
 
   return (
     <div className='flex-1 overflow-auto relative z-10 hide-scrollbar'>

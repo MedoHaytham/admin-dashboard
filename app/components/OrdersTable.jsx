@@ -1,11 +1,10 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 import React, { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion';
-import { Search, Trash2 } from 'lucide-react';
-import { toast } from 'react-toastify';
-import axios from 'axios';
-import Cookies from 'js-cookie';
+import { Search } from 'lucide-react';
 import OrdersTableLoading from './OrdersTableLoading';
+import { useGetOrdersQuery } from '../features/orderSlice';
 
 const STATUS_STYLES = {
   confirmed:  'bg-green-400/20 text-green-400',
@@ -16,10 +15,11 @@ const STATUS_STYLES = {
 };
 
 function OrdersTable() {
-  const [orderData, setOrderData] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedTerm, setDebouncedTerm] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
+
+  const { data: orders, isLoading } = useGetOrdersQuery();
+  const orderData = orders?.data?.orders || [];
 
   // Debounce
   useEffect(() => {
@@ -40,28 +40,6 @@ function OrdersTable() {
     });
   }, [debouncedTerm, orderData]);
 
-  // Fetch orders
-  useEffect(() => {
-    async function fetchOrders() {
-      try {
-        setIsLoading(true);
-        const response = await axios.get(
-          'https://e-commerce-backend-geri.onrender.com/api/orders/all?limit=0',
-          { headers: { Authorization: `Bearer ${Cookies.get('accessToken')}` } }
-        );
-        setOrderData(response.data.data.orders);
-      } catch (error) {
-        toast.error('Error fetching orders: ' + error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchOrders();
-  }, []);
-
-  // Update order status
-
-  // Delete order
 
   const formatDate = (dateStr) =>
     new Date(dateStr).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });

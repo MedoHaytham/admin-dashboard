@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { toast } from 'react-toastify';
-import Cookies from 'js-cookie';
 import { X, Plus } from 'lucide-react';
+import { useAddProductMutation, useAddCategoryMutation, useDeleteCategoryMutation } from '../features/productsSlice';
 
 const EMPTY_FORM = {
   title: '',
@@ -16,16 +15,19 @@ const EMPTY_FORM = {
 
 const EMPTY_CATEGORY_FORM = { name: '' };
 
-function AddProductForm({ categories, onClose, onAdd, onCategoryAdd, onCategoryDelete }) {
+function AddProductForm({ categories, onClose }) {
   const [form, setForm] = useState(EMPTY_FORM);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
+
+  // RTK Query mutations
+  const [addProduct, { isLoading: isSubmitting }] = useAddProductMutation();
+  const [addCategory, { isLoading: isCategorySubmitting }] = useAddCategoryMutation();
+  const [deleteCategory] = useDeleteCategoryMutation();
 
   // Add category modal state
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [categoryForm, setCategoryForm] = useState(EMPTY_CATEGORY_FORM);
   const [categoryError, setCategoryError] = useState('');
-  const [isCategorySubmitting, setIsCategorySubmitting] = useState(false);
 
   const onChange = (e) => {
     const { name, value } = e.target;
@@ -68,7 +70,6 @@ function AddProductForm({ categories, onClose, onAdd, onCategoryAdd, onCategoryD
     e.preventDefault();
     if (!validate()) return;
 
-    setIsSubmitting(true);
     try {
       const payload = {
         title: form.title,
@@ -80,19 +81,11 @@ function AddProductForm({ categories, onClose, onAdd, onCategoryAdd, onCategoryD
         images: form.images.filter((img) => img.trim() !== ''),
       };
 
-      const response = await axios.post(
-        'https://e-commerce-backend-geri.onrender.com/api/products',
-        payload,
-        { headers: { 'Authorization': `Bearer ${Cookies.get('accessToken')}` } }
-      );
-
+      await addProduct(payload).unwrap();
       toast.success('Product added successfully');
-      onAdd(response.data.data);
       onClose();
     } catch (error) {
-      console.log(error);
-    } finally {
-      setIsSubmitting(false);
+      toast.error(error?.data?.message || 'Error adding product');
     }
   };
 
@@ -103,28 +96,18 @@ function AddProductForm({ categories, onClose, onAdd, onCategoryAdd, onCategoryD
       setCategoryError('Category name is required');
       return;
     }
-    setIsCategorySubmitting(true);
     try {
-      const response = await axios.post(
-        'https://e-commerce-backend-geri.onrender.com/api/categories',
-        { 
-          name: categoryForm.name,
-          slug: categoryForm.name.toLowerCase().replace(/\s+/g, '-')
-
-        },
-        { headers: { 'Authorization': `Bearer ${Cookies.get('accessToken')}` } }
-      );
-      const newCategory = response.data.data;
+      const res = await addCategory({ 
+        name: categoryForm.name,
+        slug: categoryForm.name.toLowerCase().replace(/\s+/g, '-')
+      }).unwrap();
       toast.success('Category added successfully');
-      onCategoryAdd(newCategory);
-      setForm((prev) => ({ ...prev, category: newCategory._id }));
+      setForm((prev) => ({ ...prev, category: res.data._id }));
       setCategoryForm(EMPTY_CATEGORY_FORM);
       setCategoryError('');
       setShowAddCategory(false);
     } catch (error) {
-      console.log(error);
-    } finally {
-      setIsCategorySubmitting(false);
+      toast.error(error?.data?.message || 'Error adding category');
     }
   };
 
@@ -132,15 +115,11 @@ function AddProductForm({ categories, onClose, onAdd, onCategoryAdd, onCategoryD
   const deleteCategoryHandler = async (id) => {
     if (!window.confirm('Are you sure you want to delete this category?')) return;
     try {
-      await axios.delete(
-        `https://e-commerce-backend-geri.onrender.com/api/categories/${id}`,
-        { headers: { 'Authorization': `Bearer ${Cookies.get('accessToken')}` } }
-      );
+      await deleteCategory(id).unwrap();
       toast.success('Category deleted successfully');
-      onCategoryDelete(id);
       if (form.category === id) setForm((prev) => ({ ...prev, category: '' }));
     } catch (error) {
-      console.log(error);
+      toast.error(error?.data?.message || 'Error deleting category');
     }
   };
 
