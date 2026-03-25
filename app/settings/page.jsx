@@ -15,7 +15,7 @@ function Settings() {
           <div className='flex flex-col justify-between mb-6 gap-4'>
             <h2 className='text-lg md:text-xl font-semibold text-text-secondary text-center md:text-left'>Settings</h2>
             
-            <div className='flex items-center gap-5'>
+            <div className='flex items-center justify-between sm:hidden'>
               <p className='text-text-secondary'>Theme Mode</p>
               <ThemeToggle />
             </div>

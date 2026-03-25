@@ -45,7 +45,7 @@ export default function ThemeToggle() {
       className="
         group relative inline-flex items-center justify-between
         w-16 h-8 lg:w-20 lg:h-10 rounded-full border border-border-primary
-        bg-secondary px-2 shadow-md mr-3
+        bg-secondary px-2 shadow-md
         transition active:scale-[0.98]
         focus:outline-none focus-visible:ring-2 focus-visible:ring-text-secondary/40
       "
@@ -68,10 +68,10 @@ export default function ThemeToggle() {
 
       <span
         className={`
-          absolute top-1 left-1 h-6 w-6 lg:h-8 lg:w-8 rounded-full
+          absolute top-1.1 ${isLight ? "left-0.5" : "left-1"} lg:left-1 h-6 w-6 lg:h-8 lg:w-8 rounded-full
           bg-primary border border-border-primary
           shadow-lg transition-transform duration-300 ease-out
-          ${isLight ? "translate-x-10" : "translate-x-0"}
+          ${isLight ? "translate-x-8 lg:translate-x-10" : "translate-x-0"}
         `}
       />
 
