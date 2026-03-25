@@ -35,12 +35,7 @@ const sidebarItems  = [
     name: 'Orders',
     path: '/orders',
   },
-  {
-    id: 6,
-    icon: <Settings size={20} className='min-w-5'/>,
-    name: 'Settings',
-    path: '/settings',
-  },
+
 ];
 
 
@@ -59,23 +54,30 @@ function Sidebar() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // if (isSidebarOpen === null) return null;
 
   return (
     <div className={`${isSidebarOpen ? 'w-64' : 'w-21'} transition-all duration-300 ease-in-out shrink-0 relative z-10 `}>
       <div className='h-full bg-primary backdrop-blur-md p-4 flex flex-col border-r border-secondary'>
         <button  onClick={() => setIsSidebarOpen((prev) => !prev)} className={`hidden md:block rounded-full p-2 hover:bg-secondary transition-colors max-w-fit cursor-pointer ${isSidebarOpen ? '' : 'ml-1.5'}`}><Menu size={24}/></button>
-        <nav className='mt-8 grow'>
-          {
-            sidebarItems.map((item) => (
-              <Link key={item.id} href={item.path}>
-                <div className={`flex items-center p-4 text-sm font-medium rounded-lg hover:bg-secondary transition-colors mb-2 text-text-theme ${pathname === item.path ? 'bg-secondary' : ''}`}>
-                  {item.icon}
-                  {isSidebarOpen && <span className='ml-4 whitespace-nowrap'>{item.name}</span>}
-                </div>
-              </Link>
-            ))
-          }
+        <nav className='mt-8 grow flex flex-col justify-between'>
+          <div>
+            {
+              sidebarItems.map((item) => (
+                <Link key={item.id} href={item.path}>
+                  <div className={`flex items-center p-4 text-sm font-medium rounded-lg hover:bg-secondary transition-colors mb-2 text-text-theme ${pathname === item.path ? 'bg-secondary' : ''}`}>
+                    {item.icon}
+                    {isSidebarOpen && <span className='ml-4 whitespace-nowrap'>{item.name}</span>}
+                  </div>
+                </Link>
+              ))
+            }
+          </div>
+          <Link href='/settings'>
+            <div className={`flex items-center p-4 text-sm font-medium rounded-lg hover:bg-secondary transition-colors mb-2 text-text-theme ${pathname === '/settings' ? 'bg-secondary' : ''}`}>
+              <Settings size={20} className='min-w-5'/>
+              {isSidebarOpen && <span className='ml-4 whitespace-nowrap'>Settings</span>}
+            </div>
+          </Link>
         </nav>
       </div>
     </div>

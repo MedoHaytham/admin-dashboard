@@ -15,6 +15,12 @@ export default function ThemeToggle() {
     setTheme(initial);
     document.documentElement.classList.remove("light", "dark");
     document.documentElement.classList.add(initial);
+
+    const handleThemeSync = (e) => {
+      setTheme(e.detail);
+    };
+    window.addEventListener("theme-change", handleThemeSync);
+    return () => window.removeEventListener("theme-change", handleThemeSync);
   }, []);
 
   useEffect(() => {
@@ -24,16 +30,20 @@ export default function ThemeToggle() {
     localStorage.setItem("theme", theme);
   }, [theme, mounted]);
 
-  if (!mounted) return null; // يمنع mismatch
+  if (!mounted) return null;
 
   const isLight = theme === "light";
 
   return (
     <button
       type="button"
-      onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
+      onClick={() => {
+        const newTheme = theme === "dark" ? "light" : "dark";
+        setTheme(newTheme);
+        window.dispatchEvent(new CustomEvent("theme-change", { detail: newTheme }));
+      }}
       className="
-        hidden group relative md:inline-flex items-center justify-between
+        group relative inline-flex items-center justify-between
         w-16 h-8 lg:w-20 lg:h-10 rounded-full border border-border-primary
         bg-secondary px-2 shadow-md mr-3
         transition active:scale-[0.98]

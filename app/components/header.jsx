@@ -60,8 +60,10 @@ function Header() {
     <header className='bg-primary shadow-lg border-b border-border-primary mx-4 sm:mx-6 lg:mx-8 mt-4 mb-2 rounded-lg'>
       <div className='max-w-7xl mx-auto py-4 px-4 sm:px-6 flex justify-between items-center'>
         <h1 className='text-lg sm:text-xl lg:text-2xl font-semibold text-text-secondary'>Dashboard</h1>
-        <div className='flex items-center space-x-3 sm:space-x-6'>
-          <ThemeToggle />
+        <div className='flex items-center space-x-3 lg:space-x-6'>
+          <div className='hidden sm:block'>
+            <ThemeToggle />
+          </div>
           <div className='flex items-center space-x-3 sm:space-x-4'>
             {
               countries.map((country) => (
@@ -80,7 +82,7 @@ function Header() {
             <div className='relative' onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
               <div className='flex items-center space-x-2 sm:space-x-3 cursor-pointer'>
                 <CircleUser className='w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 text-text-primary hover:text-text-theme transition-colors' />
-                <span className='hidden sm:block text-text-secondary font-medium capitalize'>{fullName}</span>
+                <span className='hidden sm:block text-text-secondary font-medium capitalize truncate max-w-[100px] lg:max-w-[200px] overflow-ellipsis'>{fullName}</span>
                 <MdOutlineArrowDropDown className={`w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-text-primary hover:text-text-theme duration-400 ease-in-out cursor-pointer ${isDropdownOpen ? 'rotate-180' : ''}`} />
               </div>
               {isDropdownOpen && (

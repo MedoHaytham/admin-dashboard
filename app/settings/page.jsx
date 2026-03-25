@@ -1,6 +1,7 @@
 "use client"
 import React from 'react'
 import { motion } from 'framer-motion';
+import ThemeToggle from '../components/ThemeMode'
 
 function Settings() {
   return (
@@ -11,8 +12,13 @@ function Settings() {
           animate={{opacity: 1, y: 0}}
           transition={{delay: 0.2, duration: 0.5}}
         >
-          <div className='flex flex-col md:flex-row justify-between items-center mb-6 gap-4 md:gap-0'>
+          <div className='flex flex-col justify-between mb-6 gap-4'>
             <h2 className='text-lg md:text-xl font-semibold text-text-secondary text-center md:text-left'>Settings</h2>
+            
+            <div className='flex items-center gap-5'>
+              <p className='text-text-secondary'>Theme Mode</p>
+              <ThemeToggle />
+            </div>
           </div>
         </motion.div>
       </main>
