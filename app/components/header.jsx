@@ -87,11 +87,6 @@ function Header() {
               </div>
               {isDropdownOpen && (
                 <div className='absolute right-0 top-full mt-2 w-44 bg-primary border border-border-primary rounded-lg shadow-xl z-50 overflow-hidden'>
-                  <Link href="/profile" className='w-full flex items-center space-x-3 px-4 py-3 text-text-secondary hover:bg-secondary hover:text-text-primary transition-colors text-sm' onClick={() => setIsDropdownOpen(false)}>
-                    <UserRound className='w-4 h-4' />
-                    <span>My Profile</span>
-                  </Link>
-                  <div className='border-t border-border-primary' />
                   <Link href="/settings" className='w-full flex items-center space-x-3 px-4 py-3 text-text-secondary hover:bg-secondary hover:text-text-primary transition-colors text-sm' onClick={() => setIsDropdownOpen(false)}>
                     <Settings className='w-4 h-4' />
                     <span>Settings</span>
