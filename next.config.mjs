@@ -5,7 +5,7 @@ const nextConfig = {
       { protocol: 'https', hostname: 'dummyjson.com' },
       { protocol: 'https', hostname: 'cdn.dummyjson.com' },
       { protocol: 'https', hostname: 'e-commerce-backend-geri.onrender.com' },
-      { protocol: 'https', hostname: 'drive.google.com' },
+      { protocol: 'https', hostname: 'res.cloudinary.com' },
     ],
   },
   reactCompiler: true,
