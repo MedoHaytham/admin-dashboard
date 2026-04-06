@@ -1,36 +1,91 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Admin Dashboard
 
-## Getting Started
+A modern, responsive, and feature-rich Admin Dashboard built with Next.js 16 (App Router), React 19, and Tailwind CSS. It leverages Redux Toolkit (RTK Query) for robust state management and data fetching, Framer Motion for smooth animations, and Recharts for interactive data visualization.
 
-First, run the development server:
+## ✨ Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Next.js App Router**: Optimized routing and layouts.
+- **State Management**: Built-in state management and automated API caching using Redux Toolkit and RTK Query.
+- **Interactive Charts**: Data visualization using Recharts for sales, overview, and analytics.
+- **Smooth Animations**: Component transitions and interactive elements powered by Framer Motion.
+- **Modern UI**: Styled with Tailwind CSS 4, featuring a clean, responsive layout.
+- **Authentication**: Cookie-based authentication management.
+- **Validation**: Form and data validation using Joi.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠️ Tech Stack
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+- **Framework**: [Next.js](https://nextjs.org/) (App Router)
+- **Library**: [React](https://react.dev/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **State Management**: [Redux Toolkit](https://redux-toolkit.js.org/) & RTK Query
+- **Animations**: [Framer Motion](https://www.framer.com/motion/)
+- **Charts**: [Recharts](https://recharts.org/)
+- **Icons**: [Lucide React](https://lucide.dev/) & [React Icons](https://react-icons.github.io/react-icons/)
+- **HTTP Client**: [Axios](https://axios-http.com/)
+- **Validation**: [Joi](https://joi.dev/)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🚀 Getting Started
 
-## Learn More
+### Prerequisites
 
-To learn more about Next.js, take a look at the following resources:
+Make sure you have Node.js installed to run this project.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Installation
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd admin-dashboard
+   ```
 
-## Deploy on Vercel
+2. Install the dependencies:
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3. Run the development server:
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+4. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## 📁 Project Structure
+
+The project follows a feature-based structure within the `app` directory for the Next.js App Router:
+
+- `/app/api`: Redux RTK Query configurations and API slices.
+- `/app/components`: Reusable UI components (Tables, Charts, Skeletons, etc.).
+- `/app/features`: Redux slices for global state features.
+- `/app/overview`: Main dashboard overview page.
+- `/app/products`: Products management table and details.
+- `/app/orders`: Orders management and tracking.
+- `/app/clients`: Clients directory and information.
+- `/app/sales`: Detailed sales data and charts.
+- `/app/settings`: User and dashboard settings (theme, profile, etc.).
+
+## 🔌 Backend API Integration
+
+The project uses Redux Toolkit's **RTK Query** for efficient API data fetching, caching, and state synchronization.
+
+- **Base URL**: Communicates with a live backend API hosted at `https://e-commerce-backend-geri.onrender.com/api`.
+- **Authentication**: Secure token-based authentication using `Authorization: Bearer <token>` headers. The `accessToken` is managed and persisted via `js-cookie`.
+- **Automatic Token Refresh**: Implements a custom `baseQueryWithAuth` wrapper that automatically handles token expiration. If an API call fails with a `401 Unauthorized` status, the application seamlessly calls the `/auth/refresh` endpoint to retrieve a new token and retries the original request without disrupting the user journey.
+- **Cache Invalidation**: RTK Query's automated cache invalidation is optimized with tags including `'Me'`, `'Users'`, `'Products'`, `'Categories'`, and `'Orders'`, ensuring that the dashboard's tables and charts remain synchronized after data mutations (e.g., editing products or completing orders).
+
+## 📜 Scripts
+
+- `npm run dev`: Runs the application in development mode.
+- `npm run build`: Builds the app for production.
+- `npm run start`: Starts the production server.
+- `npm run lint`: Runs ESLint to check for code issues.
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](#) if you want to contribute.
+
+Created with ❤️ by Mohamed Haytham.
