@@ -68,7 +68,7 @@ function ProductsTable() {
     const product = getEditedProduct(productsData.find((p) => p._id === id));
     try {
       await updateProduct({
-         id,
+        id,
         data: {
           title: product.title,
           price: Number(product.price),
